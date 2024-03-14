@@ -41,11 +41,16 @@ if (isset($_GET['genre'])) {
 
 // filter the books 
 $filteredBooks = [];
-foreach ($books as $book) {
-    if (strtolower($book['genre']) == $selectedGenre) {
-        $filteredBooks[] = $book;
+if ($selectedGenre) {
+    foreach ($books as $book) {
+        if (strtolower($book['genre']) == $selectedGenre) {
+            $filteredBooks[] = $book;
+        }
     }
+} else {
+    $filteredBooks = $books; // Display all books if no genre is selected
 }
+
 
 // display the books
 foreach ($filteredBooks as $book) {
