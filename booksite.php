@@ -27,37 +27,59 @@
             </ul>
         </nav>
         <main>
-            <?php
-                // Here you should display the books of the given genre (GET parameter "genre"). Check the links above for parameter values.
-                // If the parameter is not set, display all books.
+        <?php
+// bringing data in from JSON 
+$booksData = file_get_contents("books.json");
+$books = json_decode($booksData, true);
 
-                // Use the HTML template below and a loop (+ conditional if the genre was given) to go through the books in file  
-                
-                // You also need to check the cookies to figure out if the book is favorite or not and display correct symbol.
-                // If the book is in the favorite list, add the class "fa-star" to the a tag with "bookmark" class.
-                // If not, add the class "fa-star-o". These are Font Awesome classes that add a filled star and a star outline respectively.
-                // Also, make sure to set the id parameter for each book, so the setfavorite.php page gets the information which book to favorite/unfavorite.
+// to check if the genre has been selected
+if (isset($_GET['genre'])) {
+    $selectedGenre = strtolower($_GET['genre']);
+} else {
+    $selectedGenre = '';
+}
 
-                // Read the file into array variable $books:
-                $json = file_get_contents("books.json");
-                $books = json_decode($json, true);
+// filter the books 
+$filteredBooks = [];
+foreach ($books as $book) {
+    if (strtolower($book['genre']) == $selectedGenre) {
+        $filteredBooks[] = $book;
+    }
+}
 
-            ?>
-            <h2>Genre Name or "All Books"</h2>
+// display the books
+foreach ($filteredBooks as $book) {
+    $isFavorite = false;
+    if (isset($_COOKIE['favorite_books'])) {
+        $favoriteIds = explode(",", $_COOKIE['favorite_books']);
+        if (in_array($book['id'], $favoriteIds)) {
+            $isFavorite = true;
+        }
+    }
 
-            <section class="book">
-                <a class="bookmark fa fa-star-o" href="setfavorite.php?id=1"></a>
-                <h3>To Kill a Mockingbird</h3>
-                <p class="publishing-info">
-                    <span class="author">Harper Lee</span>,
-                    <span class="year">1960</span>
-                </p>
-                <p class="description">
-                    Harper Lee's masterpiece explores racial injustice and moral growth through the eyes of a young girl in the American South.
-                </p>
-            </section>
+    if ($isFavorite) {
+        $favoriteClass = "fa-star";
+    } else {
+        $favoriteClass = "fa-star-o";
+    }
+    ?>
+    <section class="book">
+        <a class="bookmark fa <?php print $favoriteClass ?>" href="setfavorite.php?id=<?php print $book['id'] ?>"></a>
+        <h3><?php print $book['title'] ?></h3>
+        <p class="publishing-info">
+            <span class="author"><?php print $book['author'] ?></span>,
+            <span class="year"><?php print $book['publishing_year'] ?></span>
+        </p>
+        <p class="description"><?php print $book['description'] ?></p>
+    </section>
+<?php }
 
-        </main>
+// no books found 
+if (empty($filteredBooks)) {
+    ?>
+    <p>No books found for the selected genre.</p>
+<?php } ?>
+         </main>
     </div>    
 </body>
 </html>
