@@ -28,6 +28,7 @@
         </nav>
         <main>
         <?php
+        
 // bringing data in from JSON 
 $booksData = file_get_contents("books.json");
 $books = json_decode($booksData, true);
@@ -48,7 +49,7 @@ if ($selectedGenre) {
         }
     }
 } else {
-    $filteredBooks = $books; // Display all books if no genre is selected
+    $filteredBooks = $books;
 }
 
 
